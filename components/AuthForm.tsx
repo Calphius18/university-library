@@ -27,7 +27,7 @@ import { FIELD_NAMES, FIELD_TYPES } from "@/constants";
 import ImageUpload from "./ImageUpload";
 
 interface Props<T extends FieldValues> {
-  schema: ZodType<T>;
+  schema:  ZodType<T, any, any>;
   defaultValues: T;
   onSubmit: (data: T) => Promise<{ success: boolean; error?: string }>;
   type: "SIGN_IN" | "SIGN_UP";
@@ -41,7 +41,7 @@ const AuthForm = <T extends FieldValues>({
 }: Props<T>) => {
   const isSignIn = type === "SIGN_IN";
 
-  const form: useForm({
+  const form: UseFormReturn<T> = useForm({
     resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<T>,
   });
@@ -77,7 +77,7 @@ const AuthForm = <T extends FieldValues>({
                   </FormLabel>
                   <FormControl>
                     {field.name === "universityCard" ? (
-                      <ImageUpload />
+                      <ImageUpload onFileChange = {field.onChange}/>
                     ) : (
                       <Input required type= {FIELD_TYPES[field.name as keyof typeof FIELD_TYPES]} {...field} className="form-input"/>
                     )}
