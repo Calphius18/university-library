@@ -6,6 +6,7 @@ type InitialData = {
 
 export const { POST } = serve<InitialData>(async (context) => {
   const { email } = context.requestPayload;
+  console.log("🔥 Workflow started:", context.requestPayload);
 
   // 👋 Welcome email right after signup
   await context.run("new-signup", async () => {
