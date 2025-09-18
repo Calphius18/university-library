@@ -70,7 +70,7 @@ export const signUp = async (params: AuthCredentials) => {
 
     // ✅ Trigger onboarding workflow via QStash
     await workflowClient.trigger({
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/workflows/onboarding`,
+        url: `${config.env.apiEndpoint}/api/workflows/onboarding`,
         body: { email, fullName },
       });
       
