@@ -8,6 +8,8 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import ratelimit from "../ratelimit";
 import { redirect } from "next/navigation";
+import config from "../config";
+import { workflowClient } from "../workflow";
 
 export const signInWithCredentials = async (
   params: Pick<AuthCredentials, "email" | "password">
@@ -17,7 +19,7 @@ export const signInWithCredentials = async (
   const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1";
   const { success } = await ratelimit.limit(ip);
 
-  if(!success) return redirect("/too-fast")
+  if (!success) return redirect("/too-fast");
 
   try {
     const result = await signIn("credentials", {
@@ -66,6 +68,12 @@ export const signUp = async (params: AuthCredentials) => {
       universityCard,
     });
 
+    // ✅ Trigger onboarding workflow via QStash
+    await workflowClient.trigger({
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/workflows/onboarding`,
+        body: { email, fullName },
+      });
+      
     await signInWithCredentials({ email, password });
 
     return { success: true };

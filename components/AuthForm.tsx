@@ -27,6 +27,7 @@ import { FIELD_NAMES, FIELD_TYPES } from "@/constants";
 import ImageUpload from "./ImageUpload";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import emailjs from "@emailjs/browser";
 
 interface Props<T extends FieldValues> {
   schema:  ZodType<T, any, any>;
@@ -56,6 +57,24 @@ const AuthForm = <T extends FieldValues>({
       toast.success("Success", {
         description: isSignIn ? "You have successfully signed in." : "You have successfully signed up."
       });
+
+      if (!isSignIn) {
+        try {
+          await emailjs.send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+            process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+            {
+              to_name: data.fullName,
+              to_email: data.email,
+              message: `Welcome ${data.fullName}, thanks for signing up 🎉`,
+            },
+            process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+          );
+          console.log("📧 Welcome email sent!");
+        } catch (err) {
+          console.error("EmailJS error:", err);
+        }
+      }
 
       router.push("/");
     } else { 
